@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Asistencias | Club de Remo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🚣</span>
+                <span class="logo-text">Club de Remo</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link active">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="members.html" class="nav-link">
+                        <span class="nav-icon">👥</span>
+                        <span>Miembros</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span>Configuración</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="device-status" id="deviceStatus">
+                <span class="status-indicator disconnected"></span>
+                <span class="status-text">Desconectado</span>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Dashboard de Asistencias</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="syncEvents()">
+                        <span>🔄</span> Sincronizar
+                    </button>
+                </div>
+            </header>
+            
+            <div class="content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statTotal">0</span>
+                            <span class="stat-label">Registros Hoy</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statSuccess">0</span>
+                            <span class="stat-label">Verificados</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🙋</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statUnique">0</span>
+                            <span class="stat-label">Personas</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🕐</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="currentTime">--:--</span>
+                            <span class="stat-label">Hora Actual</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card attendance-list-card">
+                    <div class="card-header">
+                        <h2>Asistencias de Hoy</h2>
+                        <span class="live-indicator">
+                            <span class="live-dot"></span>
+                            En vivo
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="attendance-list" id="attendanceList">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <p>Cargando registros...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
