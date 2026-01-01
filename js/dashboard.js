@@ -82,43 +82,76 @@ function createAttendanceItem(record, isNew = false) {
 }
 
 function startLiveUpdates() {
-    // Use query parameter for ngrok since EventSource doesn't support headers
-    const sseUrl = getApiUrl('/api/attendance/live') + '?ngrok-skip-browser-warning=true';
-    const eventSource = new EventSource(sseUrl);
+    // Use fetch with ReadableStream to support ngrok header (EventSource doesn't support headers)
+    fetchSSE();
+}
 
-    eventSource.onmessage = function (event) {
-        const data = JSON.parse(event.data);
+async function fetchSSE() {
+    try {
+        const response = await fetch(getApiUrl('/api/attendance/live'), {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
 
-        if (data.type === 'ping') return;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-        // Add new item to the top of the list
-        const container = document.getElementById('attendanceList');
-        const emptyState = container.querySelector('.empty-state');
-        if (emptyState) {
-            container.innerHTML = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n\n');
+            buffer = lines.pop(); // Keep incomplete chunk
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    try {
+                        const data = JSON.parse(line.slice(6));
+                        handleSSEMessage(data);
+                    } catch (e) {
+                        console.log('SSE parse error:', e);
+                    }
+                }
+            }
         }
+    } catch (error) {
+        console.log('SSE connection error, retrying in 5s...', error);
+        setTimeout(fetchSSE, 5000);
+    }
 
-        container.insertAdjacentHTML('afterbegin', createAttendanceItem(data, true));
+    // Reconnect after stream ends
+    setTimeout(fetchSSE, 1000);
+}
 
-        // Update stats
-        const totalEl = document.getElementById('statTotal');
-        totalEl.textContent = parseInt(totalEl.textContent) + 1;
+function handleSSEMessage(data) {
+    if (data.type === 'ping') return;
 
-        if (data.is_success) {
-            const successEl = document.getElementById('statSuccess');
-            successEl.textContent = parseInt(successEl.textContent) + 1;
-        }
+    // Add new item to the top of the list
+    const container = document.getElementById('attendanceList');
+    const emptyState = container.querySelector('.empty-state');
+    if (emptyState) {
+        container.innerHTML = '';
+    }
 
-        // Flash effect
-        setTimeout(() => {
-            const newItem = container.querySelector('.new-item');
-            if (newItem) newItem.classList.remove('new-item');
-        }, 2000);
-    };
+    container.insertAdjacentHTML('afterbegin', createAttendanceItem(data, true));
 
-    eventSource.onerror = function () {
-        console.log('SSE connection lost, reconnecting...');
-    };
+    // Update stats
+    const totalEl = document.getElementById('statTotal');
+    totalEl.textContent = parseInt(totalEl.textContent) + 1;
+
+    if (data.is_success) {
+        const successEl = document.getElementById('statSuccess');
+        successEl.textContent = parseInt(successEl.textContent) + 1;
+    }
+
+    // Flash effect
+    setTimeout(() => {
+        const newItem = container.querySelector('.new-item');
+        if (newItem) newItem.classList.remove('new-item');
+    }, 2000);
 }
 
 async function syncEvents() {
