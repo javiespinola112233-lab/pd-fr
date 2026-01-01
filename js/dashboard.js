@@ -5,7 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     loadTodayAttendance();
-    startLive Updates();
+    startLiveUpdates();
     updateClock();
     setInterval(updateClock, 1000);
 });
@@ -18,7 +18,11 @@ function updateClock() {
 
 async function loadTodayAttendance() {
     try {
-        const response = await fetch(getApiUrl('/api/attendance/today'));
+        const response = await fetch(getApiUrl('/api/attendance/today'), {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
         const data = await response.json();
 
         // Update stats
@@ -52,7 +56,7 @@ function renderAttendanceList(records) {
 
 function createAttendanceItem(record, isNew = false) {
     const time = new Date(record.event_time);
-    const timeStr = time.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2- digit' });
+    const timeStr = time.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const name = record.member_name || `ID: ${record.employee_no}`;
     const category = record.member_category || 'Sin asignar';
     const isSuccess = record.event_type.toLowerCase().includes('pass') ||

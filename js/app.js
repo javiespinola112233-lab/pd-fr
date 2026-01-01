@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', function () {
  */
 async function checkDeviceStatus() {
     try {
-        const response = await fetch(getApiUrl('/api/device/status'));
+        const response = await fetch(getApiUrl('/api/device/status'), {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
         const status = await response.json();
         updateDeviceStatus(status.connected);
     } catch (error) {
@@ -107,7 +111,8 @@ async function apiRequest(url, method = 'GET', data = null) {
     const options = {
         method,
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
         }
     };
 
