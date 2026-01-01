@@ -82,7 +82,9 @@ function createAttendanceItem(record, isNew = false) {
 }
 
 function startLiveUpdates() {
-    const eventSource = new EventSource(getApiUrl('/api/attendance/live'));
+    // Use query parameter for ngrok since EventSource doesn't support headers
+    const sseUrl = getApiUrl('/api/attendance/live') + '?ngrok-skip-browser-warning=true';
+    const eventSource = new EventSource(sseUrl);
 
     eventSource.onmessage = function (event) {
         const data = JSON.parse(event.data);
